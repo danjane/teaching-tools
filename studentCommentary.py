@@ -32,3 +32,6 @@ with open(skeleton_file, 'r') as f:
 with open(report_file, 'w') as f:
     f.write(latex_str.replace('ReportHere', report))
 
+# Finish off with some useful info
+sF.positive_comments(pensees)
+print('\nReport written to: {:s}'.format(report_file))
