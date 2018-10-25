@@ -8,13 +8,16 @@ pensees = sF.scrape_pensees()
 
 def student_notes_for_latex(student):
     notes_df = pensees[pensees['Student'].isin([student])]
-    notes_df = notes_df[['Date', 'Class', 'Info']]
+    course = notes_df['Class'].value_counts().idxmax()
+    notes_df = notes_df[['Date', 'Info']]
 
-    str = '\\begin{minipage}[t]{\\textwidth} \n{\\small \\textbf{' + student + '}}\n\n'
-    str += notes_df.to_latex(index=False)
-    str += '\\end{minipage}\n\n\\vspace{0.4cm} \n\n'
+    s = '\\begin{minipage}[t]{\\textwidth} \n{\\large \\textbf{' + student + '}}\\hfill '
+    s += course + '\n\\vspace{1cm}\n\n'
+    s += notes_df.to_latex(index=False)
+    s += '\n\n\\includegraphics[width = 0.5\\textwidth]{' + student.replace(" ", "") + '.png}\n\n'
+    s += '\\end{minipage}\n\n\\newpage \n\n'
 
-    return str
+    return s
 
 
 report = ''
