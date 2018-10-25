@@ -61,10 +61,11 @@ def scrape_pensees():
 
     new_day_flag = True
     for line in pensees_file:
+
+        # Blank line means we might be starting a new day
         if len(line) < 1:
             new_day_flag = True
             continue
-
         if new_day_flag:
             try:
                 current_info['Date'] = [dateutil.parser.parse(line)]
@@ -72,6 +73,11 @@ def scrape_pensees():
             except ValueError as e:
                 pass
 
+        # Hash to ignore the line
+        if line[0] == '#':
+            continue
+
+        # Actual information
         if line in courses:
             current_info['Class'] = [line]
         else:
