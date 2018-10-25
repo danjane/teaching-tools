@@ -8,7 +8,6 @@ pensees = sF.scrape_pensees()
 
 def student_notes_for_latex(student):
     notes_df = pensees[pensees['Student'].isin([student])]
-    course = notes_df['Class'].value_counts().idxmax()
     notes_df = notes_df[['Date', 'Info']]
 
     s = '\\begin{minipage}[t]{\\textwidth} \n{\\large \\textbf{' + student + '}}\\hfill '
