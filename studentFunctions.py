@@ -52,7 +52,8 @@ def open_file(filename, open_type='r'):
 
 # Scrape the pensees file
 def scrape_pensees():
-    with open_file('Pensees') as f:
+    file_name = student_class_path.replace('COURSE', 'Pensees')
+    with open(file_name, 'r') as f:
         pensees_file = [s.strip() for s in f.readlines()]
 
     current_info = {}
@@ -88,6 +89,10 @@ def scrape_pensees():
     # Create series object of delta dates
     date_diffs = (pensees['Date'] - max(pensees['Date'])).apply(lambda x: x.days)
     pensees['Weight'] = date_diffs.apply(lambda x: np.exp(x / 10.))
+
+    if len(pensees[pensees.Sentiment & pensees.Student.isin(['general'])]) > 0:
+        print('Problem while scraping pensee file {:s}'.format(file_name))
+        raise AssertionError('General comments should not have sentiments (+ -)!!')
 
     return pensees
 
