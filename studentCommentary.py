@@ -10,7 +10,7 @@ def student_notes_for_latex(student):
     notes_df = pensees[pensees['Student'].isin([student])]
     notes_df = notes_df[['Date', 'Class', 'Info']]
 
-    str = '\\begin{minipage}[t]{\\textwidth} \n{\\small \\textbf{' + sF.classes[course][student] + '}}\n\n'
+    str = '\\begin{minipage}[t]{\\textwidth} \n{\\small \\textbf{' + student + '}}\n\n'
     str += notes_df.to_latex(index=False)
     str += '\\end{minipage}\n\n\\vspace{0.4cm} \n\n'
 

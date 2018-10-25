@@ -20,24 +20,25 @@ def load_student_file(f):
     students = {}
     for s in f.readlines():
         student = s.strip().split(', ')
+        full_name = student[0]
         if len(student) > 1:
             # Has a given name
-            name = student[1]
+            first_name = student[1]
         else:
             # Take Title name
-            name = re.search(r'[A-Z][a-z].+$', student[0]).group(0)
-        students[name] = student[0]
+            first_name = re.search(r'[A-Z][a-z].+$', student[0]).group(0)
+        students[full_name] = first_name
 
     return students
 
 
 def find_students_in_info(str, course):
     students = []
-    for student in classes[course].keys():
-        words_re = re.compile(r'\b' + student + r'\b')
+    for full_name, first_name in classes[course].items():
+        words_re = re.compile(r'\b' + first_name + r'\b')
         t = words_re.search(str)
         if t:
-            students.append(t.group(0))
+            students.append(full_name)
 
     if len(students) == 0:
         students = ['general']
@@ -91,6 +92,10 @@ def scrape_pensees():
     return pensees
 
 
+def first_name(student, course):
+    return classes[course][student]
+
+
 def positive_comments(pensees):
     # Should highlight students to engage with
     print('Positive comments needed for:')
@@ -102,9 +107,10 @@ def positive_comments(pensees):
         student_weights.sort_values('Weight', inplace=True)
 
         student_weights = student_weights.head(5)
+        first_names = [first_name(student, course) for student in student_weights.index]
 
         print('\n' + course)
-        print(' '.join(student_weights.index))
+        print(' '.join(first_names))
 
 
 def exam_marks(xlsx_file):
