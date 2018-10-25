@@ -50,6 +50,15 @@ def open_file(filename, open_type='r'):
     return open(student_class_path.replace('COURSE', filename), open_type)
 
 
+def check_pensees(pensees, file_name):
+    problems = pensees[pensees.Sentiment & pensees.Student.isin(['general'])]
+
+    if len(problems) > 0:
+        print('Problem while scraping pensee file {:s}'.format(file_name))
+        print(problems)
+        raise AssertionError('General comments should not have sentiments (+ -)!!')
+
+
 # Scrape the pensees file
 def scrape_pensees():
     file_name = student_class_path.replace('COURSE', 'Pensees')
@@ -96,9 +105,7 @@ def scrape_pensees():
     date_diffs = (pensees['Date'] - max(pensees['Date'])).apply(lambda x: x.days)
     pensees['Weight'] = date_diffs.apply(lambda x: np.exp(x / 10.))
 
-    if len(pensees[pensees.Sentiment & pensees.Student.isin(['general'])]) > 0:
-        print('Problem while scraping pensee file {:s}'.format(file_name))
-        raise AssertionError('General comments should not have sentiments (+ -)!!')
+    check_pensees(pensees, file_name)
 
     return pensees
 
