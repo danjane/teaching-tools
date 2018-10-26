@@ -114,6 +114,11 @@ def first_name(student, course):
     return classes[course][student]
 
 
+def round_note(note, step=0.5):
+    note = np.maximum(1.5, np.minimum(6., note))
+    return round(note / step) * step
+
+
 def positive_comments(pensees):
     # Should highlight students to engage with
     print('Positive comments needed for:')
