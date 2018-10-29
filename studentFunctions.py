@@ -136,8 +136,8 @@ def positive_comments(pensees):
         print(' '.join(first_names))
 
 
-def exam_marks(xlsx_file):
-    df_exam_results = pd.read_excel(xlsx_file, sheet_name="Sheet1")
+def exam_marks(xls_file):
+    df_exam_results = pd.read_excel(xls_file, sheet_name="Sheet1")
 
     # Find the questions
     question_count = 1
