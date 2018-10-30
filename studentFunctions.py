@@ -54,9 +54,12 @@ def check_pensees(pensees, file_name):
     problems = pensees[pensees.Sentiment & pensees.Student.isin(['general'])]
 
     if len(problems) > 0:
-        print('Problem while scraping pensee file {:s}'.format(file_name))
+        print('Problem while scraping pensees file {:s}'.format(file_name))
         print(problems)
         raise AssertionError('General comments should not have sentiments (+ -)!!')
+
+    dates = pensees.Date.values
+    assert all(dates[i] <= dates[i + 1] for i in range(len(dates) - 1)), 'Dates are not ordered in pensees files!'
 
 
 # Scrape the pensees file
