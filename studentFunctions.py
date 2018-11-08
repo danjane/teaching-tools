@@ -1,7 +1,9 @@
-import re
-import dateutil
 import numpy as np
 import pandas as pd
+import re
+import datetime
+import dateutil
+import matplotlib
 
 
 # Find this year's information
@@ -9,6 +11,21 @@ import elevesPaths
 student_class_path = elevesPaths.student_class_path
 courses = elevesPaths.courses
 rg_class = elevesPaths.rg_class
+
+
+horaires = {
+    'H1':  datetime.time( 8,  0),
+    'H2':  datetime.time( 8, 50),
+    'H3':  datetime.time( 9, 55),
+    'H4':  datetime.time(10, 45),
+    'H5':  datetime.time(11, 35),
+    'H6':  datetime.time(12, 30),
+    'H7':  datetime.time(13, 20),
+    'H8':  datetime.time(14, 10),
+    'H9':  datetime.time(15, 10),
+    'H10': datetime.time(16, 00),
+    'H11': datetime.time(16, 50),
+    }
 
 
 # Define classes and pensees when loaded
@@ -56,6 +73,7 @@ def check_pensees(pensees, file_name):
     if len(problems) > 0:
         print('Problem while scraping pensees file {:s}'.format(file_name))
         print(problems)
+        print(problems.iloc[0]['Info'])
         raise AssertionError('General comments should not have sentiments (+ -)!!')
 
     dates = pensees.Date.values
@@ -140,6 +158,7 @@ def positive_comments(pensees):
 
 
 def exam_marks(xls_file):
+    print('reading {:s}'.format(xls_file))
     df_exam_results = pd.read_excel(xls_file, sheet_name="Sheet1")
 
     # Find the questions
@@ -182,6 +201,12 @@ def exam_marks(xls_file):
     notes = students_as_idx(notes)
 
     return results, notes
+
+
+def read_exam(xls_file):
+    results, notes = exam_marks(xls_file)
+    descriptions = pd.read_excel(xls_file, sheet_name="Sheet2")
+    return results, notes, descriptions
 
 
 # Load courses on startup

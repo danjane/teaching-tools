@@ -10,11 +10,20 @@ def student_notes_for_latex(student):
     notes_df = pensees[pensees['Student'].isin([student])]
     notes_df = notes_df[['Date', 'Info']]
 
-    s = '\\begin{minipage}[t]{\\textwidth} \n{\\large \\textbf{' + student + '}}\\hfill '
+    s = '\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{' + student + '}}\\hfill '
     s += course + '\n\\vspace{1cm}\n\n'
     s += notes_df.to_latex(index=False)
-    s += '\n\n\\includegraphics[width = 0.5\\textwidth]{' + student.replace(" ", "") + '.png}\n\n'
-    s += '\\end{minipage}\n\n\\newpage \n\n'
+    s += '\n\\vfill'
+
+    s += '\n\\begin{minipage}[t]{0.5\\textwidth}'
+    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student.replace(" ", "") + '_Sentiment.png}'
+    s += '\\end{minipage}'
+
+    s += '\n\\begin{minipage}[t]{0.5\\textwidth}'
+    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student.replace(" ", "") + '_Notes.png}'
+    s += '\\end{minipage}'
+
+    s += '\n\n\\end{minipage}\n\n\\newpage \n\n'
 
     return s
 

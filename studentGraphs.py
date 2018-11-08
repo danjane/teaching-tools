@@ -80,5 +80,5 @@ if __name__ == "__main__":
 
         for student in sF.classes[course].keys():
             print(student)
-            image_file = os.path.join(path, "{:s}.png".format(student).replace(" ", ""))
+            image_file = os.path.join(path, "{:s}_Sentiment.png".format(student).replace(" ", ""))
             student_sentiment_in_class(student, student_sentiments, le, dates, file_name=image_file)
