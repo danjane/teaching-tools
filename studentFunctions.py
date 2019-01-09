@@ -77,7 +77,11 @@ def check_pensees(pensees, file_name):
         raise AssertionError('General comments should not have sentiments (+ -)!!')
 
     dates = pensees.Date.values
-    assert all(dates[i] <= dates[i + 1] for i in range(len(dates) - 1)), 'Dates are not ordered in pensees files!'
+    d_flag = [dates[i] > dates[i + 1] for i in range(len(dates) - 1)]
+    if any(d_flag):
+        print('Problem while scraping pensees file {:s}'.format(file_name))
+        print(dates[np.argmax(d_flag)])
+        raise AssertionError('Dates are not ordered in pensees files!')
 
 
 # Scrape the pensees file
@@ -136,8 +140,11 @@ def first_name(student, course):
 
 
 def round_note(note, step=0.5):
-    note = np.maximum(1.5, np.minimum(6., note))
-    return round(note / step) * step
+    if np.isnan(note):
+        return 1.
+    else:
+        note = np.maximum(1., np.minimum(6., note))
+        return round(note / step) * step
 
 
 def positive_comments(pensees):
@@ -153,8 +160,7 @@ def positive_comments(pensees):
         student_weights = student_weights.head(5)
         first_names = [first_name(student, course) for student in student_weights.index]
 
-        print('\n' + course)
-        print(' '.join(first_names))
+        print('\n' + course + '\n+' + '\n+'.join(first_names))
 
 
 def exam_marks(xls_file):
@@ -190,6 +196,13 @@ def exam_marks(xls_file):
     def students_as_idx(df):
         df.rename(columns={'Questions': 'Student'}, inplace=True)
         df.set_index('Student', inplace=True)
+
+        # Need to handle accidentally including used names (mistake in Notes.xls files)
+        old_names = df.index[:]
+        new_names = [t.split(',')[0] for t in old_names]
+        dictionary = dict(zip(old_names, new_names))
+        df.rename(dictionary, axis='index', inplace=True)
+
         return df
 
     # Pull off results per question...
