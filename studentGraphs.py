@@ -9,6 +9,8 @@ import elevesPaths
 import matplotlib.pyplot as plt
 import matplotlib
 
+plt.rcParams["figure.figsize"] = (8, 5)
+
 path, file = os.path.split(elevesPaths.student_class_path)
 path = os.path.join(path, "Latex", "Images.nosync")  # nosync to stop iCloud uploading all images
 
