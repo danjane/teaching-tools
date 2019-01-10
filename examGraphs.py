@@ -1,48 +1,8 @@
 import studentFunctions as sF
-import pandas as pd
-import dateutil
 import os
 import elevesPaths
-import re
 import matplotlib.pyplot as plt
 import matplotlib
-
-
-def exam_files(course_):
-    path_ = os.path.join(elevesPaths.exam_path, course_)
-    files = os.listdir(path_)
-
-    words_re = re.compile('Notes.xls') #picks up both xls and xlsx files
-    files = list(filter(lambda t: words_re.search(t), files))
-    print(files)
-    return files, path_
-
-
-def get_date(exam_file_name):
-    date = exam_file_name.split('_')[0]
-    return dateutil.parser.parse(date)
-
-
-def merge_exams(c):
-    files, path_ = exam_files(c)
-
-    notes_ = []
-    noted_exams_ = []
-    not_noted_exams_ = []
-    for f in files:
-        d = get_date(f)
-        if f in elevesPaths.noted_exams:
-            noted_exams_.append(d)
-        else:
-            not_noted_exams_.append(d)
-
-        r, n = sF.exam_marks(os.path.join(path_, f))
-        n = n.rename(columns={"Note": d})
-        notes_.append(n)
-
-    notes_ = pd.concat(notes_, axis=1, sort=True)
-
-    return notes_, noted_exams_, not_noted_exams_
 
 
 def exam_plot(student_, notes_, noted_array, show=False, file_name=''):
@@ -76,7 +36,7 @@ def exam_plot(student_, notes_, noted_array, show=False, file_name=''):
         plt.close()
 
 
-if __name__ == "__main__":
+def main():
     plt.rcParams["figure.figsize"] = (8, 5)
 
     path, file = os.path.split(elevesPaths.student_class_path)
@@ -84,7 +44,7 @@ if __name__ == "__main__":
 
     for course in sF.courses - {sF.rg_class}:
         print(course)
-        notes, noted_exams, not_noted_exams = merge_exams(course)
+        notes, noted_exams, not_noted_exams = sF.merge_exams(course)
 
         for student in sF.classes[course].keys():
             print(student)
@@ -92,3 +52,5 @@ if __name__ == "__main__":
             exam_plot(student, notes, (noted_exams, not_noted_exams), file_name=image_file)
 
 
+if __name__ == "__main__":
+    main()

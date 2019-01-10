@@ -3,7 +3,7 @@ import pandas as pd
 import re
 import datetime
 import dateutil
-import matplotlib
+import os
 
 
 # Find this year's information
@@ -222,8 +222,44 @@ def read_exam(xls_file):
     return results, notes, descriptions
 
 
+def exam_files(course_):
+    path_ = os.path.join(elevesPaths.exam_path, course_)
+    files = os.listdir(path_)
+
+    words_re = re.compile('Notes.xls')  # picks up both xls and xlsx files
+    files = list(filter(lambda t: words_re.search(t), files))
+    print(files)
+    return files, path_
+
+
+def get_date(exam_file_name):
+    date = exam_file_name.split('_')[0]
+    return dateutil.parser.parse(date)
+
+
+def merge_exams(course_):
+    files, path_ = exam_files(course_)
+
+    notes_ = []
+    noted_exams_ = []
+    not_noted_exams_ = []
+    for f in files:
+        d = get_date(f)
+        if f in elevesPaths.noted_exams:
+            noted_exams_.append(d)
+        else:
+            not_noted_exams_.append(d)
+
+        r, n = exam_marks(os.path.join(path_, f))
+        n = n.rename(columns={"Note": d})
+        notes_.append(n)
+
+    notes_ = pd.concat(notes_, axis=1, sort=True)
+
+    return notes_, noted_exams_, not_noted_exams_
+
+
 # Load courses on startup
 for c in courses:
     classes[c] = load_student_file(
         student_class_path.replace('COURSE', c))
-
