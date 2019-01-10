@@ -6,21 +6,21 @@ pd.set_option('display.max_colwidth', -1)
 pensees = sF.scrape_pensees()
 
 
-def student_notes_for_latex(student):
-    notes_df = pensees[pensees['Student'].isin([student])]
+def student_notes_for_latex(student_):
+    notes_df = pensees[pensees['Student'].isin([student_])]
     notes_df = notes_df[['Date', 'Info']]
 
-    s = '\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{' + student + '}}\\hfill '
+    s = '\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{' + student_ + '}}\\hfill '
     s += course + '\n\\vspace{1cm}\n\n'
     s += notes_df.to_latex(index=False)
     s += '\n\\vfill'
 
     s += '\n\\begin{minipage}[t]{0.5\\textwidth}'
-    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student.replace(" ", "") + '_Sentiment.png}'
+    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student_.replace(" ", "") + '_Sentiment.png}'
     s += '\\end{minipage}'
 
     s += '\n\\begin{minipage}[t]{0.5\\textwidth}'
-    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student.replace(" ", "") + '_Notes.png}'
+    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student_.replace(" ", "") + '_Notes.png}'
     s += '\\end{minipage}'
 
     s += '\n\n\\end{minipage}\n\n\\newpage \n\n'
