@@ -140,11 +140,19 @@ def first_name(student, course):
 
 
 def round_note(note, step=0.5):
-    if np.isnan(note):
-        return 1.
+    if np.isscalar(note):
+        if np.isnan(note):
+            return 1.
+        else:
+            note = np.maximum(1.5, np.minimum(6., note))
+
     else:
-        note = np.maximum(1., np.minimum(6., note))
-        return round(note / step) * step
+        nidx = np.isnan(note)
+        note[nidx] = 1.5
+        note = np.maximum(1.5, np.minimum(6., note))
+        note[nidx] = 1
+
+    return round(note / step) * step
 
 
 def positive_comments(pensees):
@@ -157,7 +165,7 @@ def positive_comments(pensees):
         student_weights = pensees_class.groupby(['Student']).agg({'Weight': 'sum'})
         student_weights.sort_values('Weight', inplace=True)
 
-        student_weights = student_weights.head(5)
+        student_weights = student_weights.head(7)
         first_names = [first_name(student, course) for student in student_weights.index]
 
         print('\n' + course + '\n+' + '\n+'.join(first_names))
