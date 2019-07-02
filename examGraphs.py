@@ -44,7 +44,7 @@ def main():
 
     for course in sF.courses - {sF.rg_class}:
         print(course)
-        notes, noted_exams, not_noted_exams = sF.merge_exams(course)
+        notes, noted_exams, not_noted_exams, exam_names = sF.merge_exams(course)
 
         for student in sF.classes[course].keys():
             print(student)

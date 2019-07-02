@@ -1,17 +1,16 @@
 import pandas as pd
-
 import studentFunctions as sF
 
 pd.set_option('display.max_colwidth', -1)
 pensees = sF.scrape_pensees()
 
 
-def student_notes_for_latex(student_):
+def student_notes_for_latex(student_, course_):
     notes_df = pensees[pensees['Student'].isin([student_])]
     notes_df = notes_df[['Date', 'Info']]
 
     s = '\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{' + student_ + '}}\\hfill '
-    s += course + '\n\\vspace{1cm}\n\n'
+    s += course_ + '\n\\vspace{1cm}\n\n'
     s += notes_df.to_latex(index=False)
     s += '\n\\vfill'
 
@@ -28,21 +27,26 @@ def student_notes_for_latex(student_):
     return s
 
 
-report = ''
-for course in sF.courses - {sF.rg_class}:
-    for student in sF.classes[course].keys():
-        report += student_notes_for_latex(student)
+def main():
+    report = ''
+    for course in sF.courses - {sF.rg_class}:
+        for student in sF.classes[course].keys():
+            report += student_notes_for_latex(student, course)
+
+    report_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report.tex')
+    skeleton_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report_skeleton.tex')
+
+    with open(skeleton_file, 'r') as f:
+        latex_str = f.read()
+
+    with open(report_file, 'w') as f:
+        f.write(latex_str.replace('ReportHere', report))
+
+    # Finish off with some useful info
+    sF.positive_comments(pensees)
+    print('\nReport written to: {:s}'.format(report_file))
 
 
-report_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report.tex')
-skeleton_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report_skeleton.tex')
 
-with open(skeleton_file, 'r') as f:
-    latex_str = f.read()
-
-with open(report_file, 'w') as f:
-    f.write(latex_str.replace('ReportHere', report))
-
-# Finish off with some useful info
-sF.positive_comments(pensees)
-print('\nReport written to: {:s}'.format(report_file))
+if __name__ == "__main__":
+    main()

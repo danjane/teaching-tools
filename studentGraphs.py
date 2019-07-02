@@ -71,7 +71,7 @@ def sentiments(df, le):
     return ss
 
 
-if __name__ == "__main__":
+def main():
     p = sF.scrape_pensees()
     for course in sF.courses - {sF.rg_class}:
         df, le = sentiments_df(p, course)
@@ -84,3 +84,6 @@ if __name__ == "__main__":
             print(student)
             image_file = os.path.join(path, "{:s}_Sentiment.png".format(student).replace(" ", ""))
             student_sentiment_in_class(student, student_sentiments, le, dates, file_name=image_file)
+
+if __name__ == "__main__":
+    main()

@@ -152,7 +152,7 @@ def round_note(note, step=0.5):
         note = np.maximum(1.5, np.minimum(6., note))
         note[nidx] = 1
 
-    return round(note / step) * step
+    return np.round(note / step) * step
 
 
 def positive_comments(pensees):
@@ -234,7 +234,7 @@ def exam_files(course_):
     path_ = os.path.join(elevesPaths.exam_path, course_)
     files = os.listdir(path_)
 
-    words_re = re.compile('Notes.xls')  # picks up both xls and xlsx files
+    words_re = re.compile('Notes.xlsx*\Z')  # picks up both xls and xlsx files
     files = list(filter(lambda t: words_re.search(t), files))
     print(files)
     return files, path_
@@ -245,14 +245,22 @@ def get_date(exam_file_name):
     return dateutil.parser.parse(date)
 
 
+def get_date_name(exam_file_name):
+    filename_parts = exam_file_name.split('_')
+    date = filename_parts[0]
+    name = filename_parts[1]
+    return dateutil.parser.parse(date), name
+
+
 def merge_exams(course_):
     files, path_ = exam_files(course_)
 
     notes_ = []
     noted_exams_ = []
     not_noted_exams_ = []
+    exam_names_ = []
     for f in files:
-        d = get_date(f)
+        d, name = get_date_name(f)
         if f in elevesPaths.noted_exams:
             noted_exams_.append(d)
         else:
@@ -261,10 +269,11 @@ def merge_exams(course_):
         r, n = exam_marks(os.path.join(path_, f))
         n = n.rename(columns={"Note": d})
         notes_.append(n)
+        exam_names_.append(name)
 
     notes_ = pd.concat(notes_, axis=1, sort=True)
 
-    return notes_, noted_exams_, not_noted_exams_
+    return notes_, noted_exams_, not_noted_exams_, exam_names_
 
 
 # Load courses on startup
