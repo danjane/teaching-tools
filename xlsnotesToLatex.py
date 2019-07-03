@@ -28,7 +28,7 @@ def main():
     xls_file = sys.argv[1]
 
     results, notes, descriptions = sF.read_exam(xls_file)
-    notes = notes[notes.Note > 0] # only for students who took the exam
+    notes = notes[notes.Note > 0]  # only for students who took the exam
     notes.Note = [sF.round_note(n) for n in notes.Note]
     descriptions.drop(['Weight'], axis=1, inplace=True)
 
