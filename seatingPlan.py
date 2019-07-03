@@ -46,11 +46,75 @@ def alphabetic(course):
     return seatingplan(s)
 
 
+def correlation_to_GSpreferences(c):
+    students = list(c.keys())
+
+    # For each student, can only pair with the OTHER half of the group
+    # i.e. guys and gals in marriage problem
+
+    guys = students[:len(students)//2]
+    gals = [s for s in students if s not in guys]
+
+    guyprefers = {}
+    galprefers = {}
+
+    for s in guys:
+        c[s] = [t for t in c[s] if t not in guys]
+        guyprefers[s] = c[s]
+
+    for s in gals:
+        c[s] = [t for t in c[s] if t not in gals]
+        galprefers[s] = c[s]
+
+    # We'll use the Gale-Shapley algorithm with guys proposing to girls
+    # The solution is optimal for guys, so perhaps swap the two groups for another solution
+    swap_flag = True
+    if swap_flag:
+        galprefers, guyprefers = guyprefers, galprefers
+
+    return guyprefers, galprefers
+
+
+def best_correlations(course, xls_file):
+
+    results, notes = sF.exam_marks(xls_file)
+    students = list(results.index)
+    c = sF.dict_of_correlations(results)
+
+    for s in students:
+        # Sort on the (increasing) correlation
+        c[s].sort(key=lambda x: x[1], reverse=False)
+
+        # Just remember the student name
+        c[s] = [x[0] for x in c[s]]
+
+    guyprefers, galprefers = correlation_to_GSpreferences(c)
+    engaged = sF.matchmaker(guyprefers, galprefers)
+    guys = engaged.keys()
+    gals = engaged.values()
+
+    def name(student_):
+        return sF.first_name(student_, course)
+
+    s = list(zip(
+        [name(student) for student in guys],
+        [name(student) for student in gals]))
+
+    for student in set(students) - set(guys) - set(gals):
+        s.append((name(student), ''))
+
+    return seatingplan(s)
+
+
 def main():
     course = sys.argv[1]
     report_file = sF.seatingplan_filename(course)
 
-    plan = alphabetic(course)
+    if len(sys.argv) < 3:
+        plan = alphabetic(course)
+    else:
+        xls_file = sys.argv[2]
+        plan = best_correlations(course, xls_file)
 
     with open(sF.seatingplan_skeleton_file, 'r') as f:
         latex_str = f.read()

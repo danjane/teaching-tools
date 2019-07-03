@@ -4,6 +4,7 @@ import re
 import datetime
 import dateutil
 import os
+import copy
 
 
 # Find this year's information
@@ -284,6 +285,82 @@ def seatingplan_filename(txt=None):
 
     path, file = os.path.split(seatingplan_skeleton_file)
     return os.path.join(path, txt)
+
+
+def m(x, w=np.nan):
+    """Weighted Mean"""
+    if np.isnan(np.sum(w)):
+        w = np.ones(np.shape(x))
+    return np.sum(x * w) / np.sum(w)
+
+
+def cov(x, y, w=np.nan):
+    """Weighted Covariance"""
+    if np.isnan(np.sum(w)):
+        w = np.ones(np.shape(x))
+    return np.sum(w * (x - m(x, w)) * (y - m(y, w))) / np.sum(w)
+
+
+def corr(x, y, w=np.nan):
+    """Weighted Correlation"""
+    if np.isnan(np.sum(w)):
+        w = np.ones(np.shape(x))
+    nidx = [not np.isnan(xx + yy + ww) for xx, yy, ww in zip(x, y, w)]
+    return cov(x[nidx], y[nidx], w[nidx]) / np.sqrt(cov(x[nidx], x[nidx], w[nidx]) * cov(y[nidx], y[nidx], w[nidx]))
+
+
+def dict_of_correlations(results):
+    """Return a dict where each student points to a couple (another student, correlation)"""
+
+    # results from exam_marks(xls_file)
+    students = list(results.index)
+
+    # Handy look up of each student's results
+    d = {}
+    for s in students:
+        d[s] = results.loc[s].values
+
+    c = {}
+    for s in students:
+        c[s] = []
+        for t in students:
+            # Calculate the correlation and include the student name
+            c[s].append((t, corr(d[s], d[t])))
+
+    return c
+
+
+# From rosettacode.org/wiki/Stable_marriage_problem#Python
+def matchmaker(guyprefers, galprefers):
+    guysfree = list(guyprefers.keys())
+    engaged = {}
+    guyprefers2 = copy.deepcopy(guyprefers)
+    galprefers2 = copy.deepcopy(galprefers)
+    while guysfree:
+        guy = guysfree.pop(0)
+        guyslist = guyprefers2[guy]
+        gal = guyslist.pop(0)
+        fiance = engaged.get(gal)
+        if not fiance:
+            # She's free
+            engaged[gal] = guy
+            print("  %s and %s" % (guy, gal))
+        else:
+            # The bounder proposes to an engaged lass!
+            galslist = galprefers2[gal]
+            if galslist.index(fiance) > galslist.index(guy):
+                # She prefers new guy
+                engaged[gal] = guy
+                print("  %s dumped %s for %s" % (gal, fiance, guy))
+                if guyprefers2[fiance]:
+                    # Ex has more girls to try
+                    guysfree.append(fiance)
+            else:
+                # She is faithful to old fiance
+                if guyslist:
+                    # Look again
+                    guysfree.append(guy)
+    return engaged
 
 
 # Load courses on startup
