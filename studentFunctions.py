@@ -11,7 +11,7 @@ import elevesPaths
 student_class_path = elevesPaths.student_class_path
 courses = elevesPaths.courses
 rg_class = elevesPaths.rg_class
-
+seatingplan_skeleton_file = student_class_path.replace('COURSE.txt', 'SeatingPlans/SeatingPlan_Skeleton.tex')
 
 horaires = {
     'H1':  datetime.time( 8,  0),
@@ -274,6 +274,16 @@ def merge_exams(course_):
     notes_ = pd.concat(notes_, axis=1, sort=True)
 
     return notes_, noted_exams_, not_noted_exams_, exam_names_
+
+
+def seatingplan_filename(txt=None):
+    if txt is None:
+        txt = 'test.tex'
+    elif txt[-4:] != '.tex':
+        txt += '.tex'
+
+    path, file = os.path.split(seatingplan_skeleton_file)
+    return os.path.join(path, txt)
 
 
 # Load courses on startup
