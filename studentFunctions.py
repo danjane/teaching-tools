@@ -6,6 +6,7 @@ import dateutil
 import os
 import copy
 
+# TODO avoid global module variables
 
 # Find this year's information
 import elevesPaths

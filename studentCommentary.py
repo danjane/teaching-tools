@@ -30,8 +30,11 @@ def student_notes_for_latex(student_, course_):
 def main():
     report = ''
     for course in sF.courses - {sF.rg_class}:
-        for student in sF.classes[course].keys():
+        for student in sF.classes[course].keys():  # TODO(dan) add each substring to a list and afterwards ''.join the list
             report += student_notes_for_latex(student, course)
+
+    #  nums = [str(n) for n in range(20)]
+    # print "".join(nums)
 
     report_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report.tex')
     skeleton_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report_skeleton.tex')

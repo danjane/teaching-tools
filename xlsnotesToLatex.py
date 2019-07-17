@@ -39,7 +39,7 @@ def main():
     skeleton_file = sF.student_class_path.replace('COURSE.txt', 'Latex/Marks_Skeleton.tex')
 
     report = ''
-    for student in notes.index:
+    for student in notes.index:   # TODO add each substring to a list and afterwards ''.join the list
         report += student_notes_for_latex(results, notes, descriptions, student, exam, date)
 
     with open(skeleton_file, 'r') as f:

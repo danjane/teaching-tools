@@ -26,8 +26,8 @@ def two_desks(pair, i, nx):
 
 def seatingplan(student_pairs, nx=3):
     plan = '% Students\n'
-    for i in range(len(student_pairs)):
-        plan += two_desks(student_pairs[i], i, nx)
+    for i in range(len(student_pairs)):  # TODO make this into a count with enumerate
+        plan += two_desks(student_pairs[i], i, nx)  # TODO add each substring to a list and afterwards ''.join the list
 
     plan += '\n% Prof\n\\node[desk, ultra thick] at ({:d}, -1.5) {{\\bfseries Prof}};'.format(nx * 5 - 4)
 
