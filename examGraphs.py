@@ -28,7 +28,6 @@ def exam_plot(student_, notes_, noted_array, show=False, file_name=''):
 
     if len(file_name) > 0:
         plt.savefig(file_name)
-        plt.close()
 
     if show:
         plt.show(block=True)
