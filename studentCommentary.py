@@ -9,32 +9,32 @@ def student_notes_for_latex(student_, course_):
     notes_df = pensees[pensees['Student'].isin([student_])]
     notes_df = notes_df[['Date', 'Info']]
 
-    s = '\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{' + student_ + '}}\\hfill '
-    s += course_ + '\n\\vspace{1cm}\n\n'
-    s += notes_df.to_latex(index=False)
-    s += '\n\\vfill'
+    s = list('\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{' + student_ + '}}\\hfill ')
 
-    s += '\n\\begin{minipage}[t]{0.5\\textwidth}'
-    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student_.replace(" ", "") + '_Sentiment.png}'
-    s += '\\end{minipage}'
+    s.append(course_ + '\n\\vspace{1cm}\n\n')
+    s.append(notes_df.to_latex(index=False))
+    s.append('\n\\vfill')
 
-    s += '\n\\begin{minipage}[t]{0.5\\textwidth}'
-    s += '\n\\includegraphics[width = 0.8\\textwidth]{' + student_.replace(" ", "") + '_Notes.png}'
-    s += '\\end{minipage}'
+    s.append('\n\\begin{minipage}[t]{0.5\\textwidth}')
+    s.append('\n\\includegraphics[width = 0.8\\textwidth]{' + student_.replace(" ", "") + '_Sentiment.png}')
+    s.append('\\end{minipage}')
 
-    s += '\n\n\\end{minipage}\n\n\\newpage \n\n'
+    s.append('\n\\begin{minipage}[t]{0.5\\textwidth}')
+    s.append('\n\\includegraphics[width = 0.8\\textwidth]{' + student_.replace(" ", "") + '_Notes.png}')
+    s.append('\\end{minipage}')
 
-    return s
+    s.append('\n\n\\end{minipage}\n\n\\newpage \n\n')
+
+    return ''.join(s)
 
 
 def main():
-    report = ''
+    report = []
     for course in sF.courses - {sF.rg_class}:
-        for student in sF.classes[course].keys():  # TODO(dan) add each substring to a list and afterwards ''.join the list
-            report += student_notes_for_latex(student, course)
+        for student in sF.classes[course].keys():
+            report.append(student_notes_for_latex(student, course))
 
-    #  nums = [str(n) for n in range(20)]
-    # print "".join(nums)
+    report = ''.join(report)
 
     report_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report.tex')
     skeleton_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report_skeleton.tex')
