@@ -45,10 +45,11 @@ def student_sentiment_in_class(student, student_sentiments, le, xd, show=False, 
     plt.title("indication du sentiment")
     if len(file_name) > 0:
         plt.savefig(file_name)
-        plt.close()
 
     if show:
         plt.show(block=True)
+    else:
+        plt.close()
 
 
 def sentiments(df, le):
