@@ -50,6 +50,5 @@ def main():
     print('\nReport written to: {:s}'.format(report_file))
 
 
-
 if __name__ == "__main__":
     main()

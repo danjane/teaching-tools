@@ -236,7 +236,7 @@ def exam_files(course_):
     path_ = os.path.join(elevesPaths.exam_path, course_)
     files = os.listdir(path_)
 
-    words_re = re.compile('Notes.xlsx*\Z')  # picks up both xls and xlsx files
+    words_re = re.compile(r'Notes.xlsx*\Z')  # picks up both xls and xlsx files
     files = list(filter(lambda t: words_re.search(t), files))
     print(files)
     return files, path_
