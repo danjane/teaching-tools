@@ -61,7 +61,7 @@ def sentiments(df, le):
     for row in df.itertuples():
         dc = getattr(row, "DayCount")
         if getattr(row, "Positive"):
-            # Note, if I give multiple comments in succession the last counts more
+            # Note, if I give multiple comments in succession only the last counts
             ss[dc:dc + n_weights, getattr(row, "Student")] = +weights
         else:
             ss[dc:dc + n_weights, getattr(row, "Student")] = -weights
@@ -85,6 +85,7 @@ def main():
             print(student)
             image_file = os.path.join(path, "{:s}_Sentiment.png".format(student).replace(" ", ""))
             student_sentiment_in_class(student, student_sentiments, le, dates, file_name=image_file)
+
 
 if __name__ == "__main__":
     main()
