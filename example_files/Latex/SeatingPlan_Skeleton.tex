@@ -1,0 +1,38 @@
+\documentclass[12pt]{article}
+
+\pagestyle{empty}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{lmodern} % font with nicer French characters than standard
+\usepackage[a4paper, landscape]{geometry} %makes it easy to specify where to put stuff on the page
+
+\usepackage{adjustbox} %auto-resizing to pagewidth with geometry package
+
+\usepackage{tikz}
+\tikzset{
+  desk/.style={
+    shape=rectangle,
+    draw,
+    font=\footnotesize,
+    minimum width=2cm,
+    minimum height=1cm,
+  },
+}
+
+\begin{document}
+
+\begin{adjustbox}{width=\textwidth}
+\begin{tikzpicture}
+
+DesksHere
+
+% Door
+\draw[ultra thick] (-1.5,1) -- (-1.5, -1);
+\draw[ultra thick] (-1.5,-2) -- (-1.5, -3);
+\draw (-1.5,-2) arc (270:180:1) -- (-1.5,-1) node[below] {entrée};
+
+\end{tikzpicture}
+\end{adjustbox}
+
+\end{document}

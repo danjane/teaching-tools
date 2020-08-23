@@ -1,5 +1,6 @@
 import studentFunctions as sF
 import sys
+import random
 
 
 def latex_desk(name, xpos, ypos):
@@ -26,6 +27,7 @@ def two_desks(pair, i, nx):
 
 def seatingplan(student_pairs, nx=3):
     plan = '% Students\n'
+    #student_pairs.reverse()
     for i in range(len(student_pairs)):  # TODO make this into a count with enumerate
         plan += two_desks(student_pairs[i], i, nx)  # TODO add each substring to a list and afterwards ''.join the list
 
@@ -82,8 +84,11 @@ def best_correlations(course, xls_file):
     c = sF.dict_of_correlations(results)
 
     for s in students:
-        # Sort on the (increasing) correlation
-        c[s].sort(key=lambda x: x[1], reverse=False)
+        # Sort on the (decreasing) correlation
+#        c[s].sort(key=lambda x: x[1], reverse=False)
+
+#        # Sort on the (increasing) correlation
+        c[s].sort(key=lambda x: x[1], reverse=True)
 
         # Just remember the student name
         c[s] = [x[0] for x in c[s]]
@@ -100,6 +105,8 @@ def best_correlations(course, xls_file):
         [name(student) for student in guys],
         [name(student) for student in gals]))
 
+    random.shuffle(s)
+
     for student in set(students) - set(guys) - set(gals):
         s.append((name(student), ''))
 
@@ -109,6 +116,7 @@ def best_correlations(course, xls_file):
 def main():
     course = sys.argv[1]
     report_file = sF.seatingplan_filename(course)
+    latex_str = sF.seatingplan_skeleton()
 
     if len(sys.argv) < 3:
         plan = alphabetic(course)
@@ -116,11 +124,9 @@ def main():
         xls_file = sys.argv[2]
         plan = best_correlations(course, xls_file)
 
-    with open(sF.seatingplan_skeleton_file, 'r') as f:
-        latex_str = f.read()
-
     with open(report_file, 'w') as f:
         f.write(latex_str.replace('DesksHere', plan))
+        print('Seating plan written to ' + report_file)
 
 
 if __name__ == "__main__":
