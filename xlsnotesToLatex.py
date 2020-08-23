@@ -9,12 +9,15 @@ def student_notes_for_latex(results_, notes_, descriptions_, student_, exam_, da
 
     string = '\\begin{minipage}[t]{\\textwidth}\n'
     string += '\section*{\centering Exam: ' + exam_ + ', ' + date_ + ' }\n'
-    string += '\\textbf{' + student_ + ', ' + "{:.1f}".format(notes_.loc[student_].values[0]) + '}'
+    string += '\\textbf{' + student_ + '. Note : ' + "{:.1f}".format(notes_.loc[student_].values[0]) + '}'
     string += '\n\\vspace{1em}\n\n\\rowcolors{1}{}{lightgray}'
 
     string += descriptions_.to_latex(decimal=',', index=False, escape=False)
 
-    string += '\\end{minipage}\n\n\\newpage\n\n'
+    string += '\\end{minipage}\n\n'
+    string += '\\\nPour ameliorer ma note, je vais faire un quiz avec les questions suivantes :\n\n'
+    # string += '\\vspace{1cm}\n{\\large I would have loved a minitest last week with the following questions:}\n\n'
+    string += '\\newpage\n\n'
 
     # don't want NaNs for non-programmers
     string = string.replace('NaN', '')
@@ -36,7 +39,7 @@ def main():
     date, exam, type_ = file.split('_')
 
     report_file = os.path.join(path, "{:s}_{:s}_Marks.tex".format(date, exam))
-    skeleton_file = sF.student_class_path.replace('COURSE.txt', 'Latex/Marks_Skeleton.tex')
+    skeleton_file = sF.marks_skeleton_file()
 
     report = ''
     for student in notes.index:   # TODO add each substring to a list and afterwards ''.join the list
