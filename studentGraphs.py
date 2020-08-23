@@ -74,7 +74,7 @@ def sentiments(df, le):
 
 def main():
     p = sF.scrape_pensees()
-    for course in sF.courses - {sF.rg_class}:
+    for course in sF.courses():
         df, le = sentiments_df(p, course)
         student_sentiments = sentiments(df, le)
 

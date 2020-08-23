@@ -5,15 +5,32 @@ import datetime
 import dateutil
 import os
 import copy
+import yaml
 
-# TODO avoid global module variables
 
-# Find this year's information
-import elevesPaths
-student_class_path = elevesPaths.student_class_path
-courses = elevesPaths.courses
-rg_class = elevesPaths.rg_class
-seatingplan_skeleton_file = student_class_path.replace('COURSE.txt', 'SeatingPlans/SeatingPlan_Skeleton.tex')
+def load_config():
+    if os.path.isfile('config.yaml'):
+        with open('config.yaml', 'r') as f:
+            config = yaml.safe_load(f)
+    else:
+        raise FileNotFoundError('no config.yaml file found!!')
+
+    # Use default skeleton files if not given
+    if not 'report_skeleton_file' in config:
+        config['report_skeleton_file'] = os.path.abspath(
+            os.path.join('example_files', 'Latex', 'Report_Skeleton.tex'))
+    if not 'marks_skeleton_file' in config:
+        config['marks_skeleton_file'] = os.path.abspath(
+            os.path.join('example_files', 'Latex', 'Marks_Skeleton.tex'))
+    if not 'seatingplan_skeleton_file' in config:
+        config['seatingplan_skeleton_file'] = os.path.abspath(
+            os.path.join('example_files', 'Latex', 'SeatingPlan_Skeleton.tex'))
+
+
+    return config
+
+
+config = load_config()
 
 horaires = {
     'H1':  datetime.time( 8,  0),
@@ -34,6 +51,12 @@ horaires = {
 classes = {}
 
 
+def seatingplan_skeleton():
+    with open(config['seatingplan_skeleton_file'], 'r') as f:
+        latex_str = f.read()
+    return latex_str
+
+
 def load_student_file(f):
     f = open(f)
     students = {}
@@ -46,6 +69,8 @@ def load_student_file(f):
         else:
             # Take Title name
             first_name = re.search(r'[A-Z][a-z].+$', student[0]).group(0)
+            first_name = first_name.split(' ')[0] # take first given name, e.g. 'James Dan' -> 'James'
+
         students[full_name] = first_name
 
     return students
@@ -66,7 +91,8 @@ def find_students_in_info(str, course):
 
 
 def open_file(filename, open_type='r'):
-    return open(student_class_path.replace('COURSE', filename), open_type)
+    raise NotImplementedError('needs to be redone')
+    return open(config['student_class_path'].replace('COURSE', filename), open_type)
 
 
 def check_pensees(pensees, file_name):
@@ -88,7 +114,7 @@ def check_pensees(pensees, file_name):
 
 # Scrape the pensees file
 def scrape_pensees():
-    file_name = student_class_path.replace('COURSE', 'Pensees')
+    file_name = config['pensees_filepath']
     with open(file_name, 'r') as f:
         pensees_file = [s.strip() for s in f.readlines()]
 
@@ -105,6 +131,7 @@ def scrape_pensees():
         if new_day_flag:
             try:
                 current_info['Date'] = [dateutil.parser.parse(line)]
+                # new_day_flag = False TODO(Dan): dateparser v slow, does this help?
                 continue
             except ValueError as e:
                 pass
@@ -114,7 +141,7 @@ def scrape_pensees():
             continue
 
         # Actual information
-        if line in courses:
+        if line in classes:
             current_info['Class'] = [line]
         else:
             students = find_students_in_info(line, current_info['Class'][0])
@@ -161,8 +188,14 @@ def positive_comments(pensees):
     # Should highlight students to engage with
     print('Positive comments needed for:')
 
-    for course in courses - {rg_class}:
+    for course in config['courses']:
         pensees_class = pensees[pensees['Class'].isin([course]) & ~pensees['Student'].isin(['general'])]
+
+        # Handle edge case that some students haven't been mentioned yet by putting one zero for everyone
+        students = list(classes[course].keys())
+        base = pd.DataFrame({'Student': students, 'Weight': [0] * len(students)})
+
+        pensees_class = pd.concat([pensees_class, base], sort=False)
 
         student_weights = pensees_class.groupby(['Student']).agg({'Weight': 'sum'})
         student_weights.sort_values('Weight', inplace=True)
@@ -233,7 +266,7 @@ def read_exam(xls_file):
 
 
 def exam_files(course_):
-    path_ = os.path.join(elevesPaths.exam_path, course_)
+    path_ = os.path.join(config['exam_path'], course_)
     files = os.listdir(path_)
 
     words_re = re.compile(r'Notes.xlsx*\Z')  # picks up both xls and xlsx files
@@ -257,13 +290,16 @@ def get_date_name(exam_file_name):
 def merge_exams(course_):
     files, path_ = exam_files(course_)
 
-    notes_ = []
+    # Allow for adding a new student to a class, read the list from the student file
+    students = classes[course_].keys()
+    notes_ = [pd.DataFrame(index=students)]
+
     noted_exams_ = []
     not_noted_exams_ = []
     exam_names_ = []
     for f in files:
         d, name = get_date_name(f)
-        if f in elevesPaths.noted_exams:
+        if f in config['noted_exams']:
             noted_exams_.append(d)
         else:
             not_noted_exams_.append(d)
@@ -284,8 +320,7 @@ def seatingplan_filename(txt=None):
     elif txt[-4:] != '.tex':
         txt += '.tex'
 
-    path, file = os.path.split(seatingplan_skeleton_file)
-    return os.path.join(path, txt)
+    return os.path.join(config['seatingplan_output_path'], txt)
 
 
 def m(x, w=np.nan):
@@ -364,7 +399,23 @@ def matchmaker(guyprefers, galprefers):
     return engaged
 
 
+def courses():
+    return config['courses']
+
+
+def report_skeleton_file():
+    return config['report_skeleton_file']
+
+
+def marks_skeleton_file():
+    return config['marks_skeleton_file']
+
+
+def report_filepath():
+    return config['report_filepath']
+
+
 # Load courses on startup
-for c in courses:
-    classes[c] = load_student_file(
-        student_class_path.replace('COURSE', c))
+for c in config['courses'] + [config['rg_class']]:
+    class_file = os.path.join(config['courses_path'], c + '.txt')
+    classes[c] = load_student_file(class_file)

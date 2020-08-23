@@ -12,7 +12,7 @@ def student_notes_for_latex(student_, course_):
     s = list('\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{' + student_ + '}}\\hfill ')
 
     s.append(course_ + '\n\\vspace{1cm}\n\n')
-    s.append(notes_df.to_latex(index=False))
+    s.append(notes_df.to_latex(index=False, escape=False))
     s.append('\n\\vfill')
 
     s.append('\n\\begin{minipage}[t]{0.5\\textwidth}')
@@ -30,14 +30,14 @@ def student_notes_for_latex(student_, course_):
 
 def main():
     report = []
-    for course in sF.courses - {sF.rg_class}:
+    for course in sF.courses():
         for student in sF.classes[course].keys():
             report.append(student_notes_for_latex(student, course))
 
     report = ''.join(report)
 
-    report_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report.tex')
-    skeleton_file = sF.student_class_path.replace('COURSE.txt', 'Latex/report_skeleton.tex')
+    report_file = sF.report_filepath()
+    skeleton_file = sF.report_skeleton_file()
 
     with open(skeleton_file, 'r') as f:
         latex_str = f.read()

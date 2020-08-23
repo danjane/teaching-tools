@@ -40,8 +40,9 @@ def main():
 
     path, file = os.path.split(elevesPaths.student_class_path)
     path = os.path.join(path, "Latex", "Images.nosync")  # nosync to stop iCloud uploading all images
+    # TODO: (dan) create directory if necessary
 
-    for course in sF.courses - {sF.rg_class}:
+    for course in sF.courses():
         print(course)
         notes, noted_exams, not_noted_exams, exam_names = sF.merge_exams(course)
 
