@@ -26,8 +26,8 @@ def two_desks(pair, i, nx):
 
 
 def seatingplan(student_pairs, nx=3):
+
     plan = '% Students\n'
-    #student_pairs.reverse()
     for i in range(len(student_pairs)):  # TODO make this into a count with enumerate
         plan += two_desks(student_pairs[i], i, nx)  # TODO add each substring to a list and afterwards ''.join the list
 
@@ -36,7 +36,7 @@ def seatingplan(student_pairs, nx=3):
     return plan
 
 
-def alphabetic(course):
+def alphabetic(course, reverse=False):
     s = list(sF.classes[course].values())
 
     # Add a blank desk if there's an odd number
@@ -44,6 +44,9 @@ def alphabetic(course):
         s.append('')
 
     s = list(zip(s[0::2], s[1::2]))
+
+    if reverse:
+        s.reverse()
 
     return seatingplan(s)
 
@@ -120,6 +123,8 @@ def main():
 
     if len(sys.argv) < 3:
         plan = alphabetic(course)
+    elif sys.argv[2] == 'reverse':
+        plan = alphabetic(course, reverse=True)
     else:
         xls_file = sys.argv[2]
         plan = best_correlations(course, xls_file)
