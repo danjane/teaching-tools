@@ -36,8 +36,19 @@ def seatingplan(student_pairs, nx=3):
     return plan
 
 
-def alphabetic(course, reverse=False):
-    s = list(sF.classes[course].values())
+def alphabetic(course, reverse=False, singles=False):
+    s = list(sF.classes[course].keys())
+
+    if singles:
+        # Add an empty desk between the students
+        new_s = []
+        for student in s:
+            new_s.append(student)
+            new_s.append('')
+        s = new_s
+
+    if reverse:
+        s.reverse()
 
     # Add a blank desk if there's an odd number
     if len(s) % 2 == 1:
@@ -45,10 +56,7 @@ def alphabetic(course, reverse=False):
 
     s = list(zip(s[0::2], s[1::2]))
 
-    if reverse:
-        s.reverse()
-
-    return seatingplan(s)
+    return s
 
 
 def correlation_to_GSpreferences(c):
@@ -88,9 +96,9 @@ def best_correlations(course, xls_file):
 
     for s in students:
         # Sort on the (decreasing) correlation
-#        c[s].sort(key=lambda x: x[1], reverse=False)
+        # c[s].sort(key=lambda x: x[1], reverse=False)
 
-#        # Sort on the (increasing) correlation
+        # Sort on the (increasing) correlation
         c[s].sort(key=lambda x: x[1], reverse=True)
 
         # Just remember the student name
@@ -101,19 +109,65 @@ def best_correlations(course, xls_file):
     guys = engaged.keys()
     gals = engaged.values()
 
-    def name(student_):
-        return sF.first_name(student_, course)
-
-    s = list(zip(
-        [name(student) for student in guys],
-        [name(student) for student in gals]))
-
+    s = list(zip(guys, gals))
     random.shuffle(s)
 
     for student in set(students) - set(guys) - set(gals):
-        s.append((name(student), ''))
+        s.append([student, ''])
 
     return seatingplan(s)
+
+
+def differentiated_seating(course, xls_file):
+    results, notes = sF.exam_marks(xls_file)
+    notes_students = zip(notes.Note, notes.index)
+
+    # Sort by notes (sort on first list, take value of second)
+    s = [x for _, x in sorted(notes_students)]
+    random.shuffle(s)
+
+    # Add a blank desk if there's an odd number
+    if len(s) % 2 == 1:
+        s.append('')
+
+    s = list(zip(s[0::2], s[1::2]))
+
+    return s
+
+
+def first_names(s, course):
+
+    def name(student_):
+        if student_ == '':
+            return ''
+        else:
+            return sF.first_name(student_, course)
+
+    s = [ [name(x), name(y)] for x, y in s]
+
+    return s
+
+
+def must_be_front_row(s):
+
+    def in_pair(st, pair):
+        return ((st==pair[0]) | (s==pair[1]))
+
+    front_row = []
+    other_rows = []
+    for pair in s:
+        in_front = False
+        for student in sF.config['front_row']:
+            in_front = in_front | in_pair(student, pair)
+            print(student, pair, in_pair(student, pair))
+
+        if in_front:
+            print(pair)
+            front_row.append(pair)
+        else:
+            other_rows.append(pair)
+
+    return front_row + other_rows
 
 
 def main():
@@ -122,12 +176,23 @@ def main():
     latex_str = sF.seatingplan_skeleton()
 
     if len(sys.argv) < 3:
-        plan = alphabetic(course)
+        pairs_list = alphabetic(course)
     elif sys.argv[2] == 'reverse':
-        plan = alphabetic(course, reverse=True)
+        pairs_list = alphabetic(course, reverse=True)
+    elif sys.argv[2] == 'singles':
+        pairs_list = alphabetic(course, singles=True)
+    elif sys.argv[2] == 'diff':
+        xls_file = sys.argv[3]
+        pairs_list = differentiated_seating(course, xls_file)
     else:
         xls_file = sys.argv[2]
-        plan = best_correlations(course, xls_file)
+        pairs_list = best_correlations(course, xls_file)
+
+    # Move pairs of desks to the front for certain students
+    pairs_list = must_be_front_row(pairs_list)
+
+    pairs_list = first_names(pairs_list, course)
+    plan = seatingplan(pairs_list)
 
     with open(report_file, 'w') as f:
         f.write(latex_str.replace('DesksHere', plan))

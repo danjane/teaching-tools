@@ -9,11 +9,12 @@ import yaml
 
 
 def load_config():
-    if os.path.isfile('config.yaml'):
+    config_file = os.path.join(os.getcwd(), 'config.yaml')
+    if os.path.isfile(config_file):
         with open('config.yaml', 'r') as f:
             config = yaml.safe_load(f)
     else:
-        raise FileNotFoundError('no config.yaml file found!!')
+        raise FileNotFoundError('no config.yaml file found!! Searched in {}'.format(config_file))
 
     # Use default skeleton files if not given
     if not 'report_skeleton_file' in config:
@@ -26,6 +27,8 @@ def load_config():
         config['seatingplan_skeleton_file'] = os.path.abspath(
             os.path.join('example_files', 'Latex', 'SeatingPlan_Skeleton.tex'))
 
+    if 'front_row' not in config:
+        config['front_row'] = []
 
     return config
 
