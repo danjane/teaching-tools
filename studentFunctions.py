@@ -8,10 +8,13 @@ import copy
 import yaml
 
 
-def load_config():
-    config_file = os.path.join(os.getcwd(), 'config.yaml')
+def load_config(config_file=None):
+    if not config_file:
+        config_file = os.path.join(os.getcwd(), 'config.yaml')
+        config_file = config_file.replace('sandpit/config.yaml', 'config.yaml')
+
     if os.path.isfile(config_file):
-        with open('config.yaml', 'r') as f:
+        with open(config_file, 'r') as f:
             config = yaml.safe_load(f)
     else:
         raise FileNotFoundError('no config.yaml file found!! Searched in {}'.format(config_file))
@@ -118,6 +121,7 @@ def check_pensees(pensees, file_name):
 # Scrape the pensees file
 def scrape_pensees():
     file_name = config['pensees_filepath']
+    print("Loading pensees file {}".format(file_name))
     with open(file_name, 'r') as f:
         pensees_file = [s.strip() for s in f.readlines()]
 
@@ -419,6 +423,10 @@ def report_filepath():
 
 
 # Load courses on startup
-for c in config['courses'] + [config['rg_class']]:
+for c in config['courses']:
     class_file = os.path.join(config['courses_path'], c + '.txt')
     classes[c] = load_student_file(class_file)
+
+if config['rg_class']:
+    class_file = os.path.join(config['courses_path'], config['rg_class'] + '.txt')
+    classes[config['rg_class']] = load_student_file(class_file)
