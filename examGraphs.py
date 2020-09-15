@@ -1,6 +1,5 @@
 import studentFunctions as sF
 import os
-import elevesPaths
 import matplotlib.pyplot as plt
 import matplotlib
 
@@ -38,8 +37,8 @@ def exam_plot(student_, notes_, noted_array, show=False, file_name=''):
 def main():
     plt.rcParams["figure.figsize"] = (8, 5)
 
-    path, file = os.path.split(elevesPaths.student_class_path)
-    path = os.path.join(path, "Latex", "Images.nosync")  # nosync to stop iCloud uploading all images
+    # nosync to stop iCloud uploading all images
+    path = os.path.join(sF.config['notes_filepath'], "Images.nosync")
     # TODO: (dan) create directory if necessary
 
     for course in sF.courses():

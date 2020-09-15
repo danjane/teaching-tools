@@ -4,15 +4,14 @@ import pandas as pd
 import sklearn.preprocessing
 
 import studentFunctions as sF
-import elevesPaths
 
 import matplotlib.pyplot as plt
 import matplotlib
 
 plt.rcParams["figure.figsize"] = (8, 5)
 
-path, file = os.path.split(elevesPaths.student_class_path)
-path = os.path.join(path, "Latex", "Images.nosync")  # nosync to stop iCloud uploading all images
+# nosync to stop iCloud uploading all images
+path = os.path.join(sF.config['notes_filepath'], "Images.nosync")
 
 
 def sentiments_df(p, course):
