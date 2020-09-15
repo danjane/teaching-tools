@@ -1,7 +1,7 @@
 import pandas as pd
 import studentFunctions as sF
 
-pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_colwidth', None)
 pensees = sF.scrape_pensees()
 
 
