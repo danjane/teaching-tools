@@ -39,17 +39,11 @@ def test_loading_students():
         'CURIE Marie': 'Marie',
         'EINSTEIN Albert': 'Albert',
         'FEYNMAN Richard': 'Dick'}
-    assert sF.load_student_file('./example_files/example_class.txt') == expected
+    loaded = sF.load_student_file('../example_files/example_class.txt')
+    assert loaded == expected
 
 
 def test_scrape_pensees():
-    example_class = sF.load_student_file('./example_files/example_class.txt')  # TODO(dan) where should this be?
-
-    sF.courses = ['example_class']
-    sF.student_class_path = './example_files/COURSE.txt'
-    sF.courses = ['example_class']
-    sF.rg_class = None
-    sF.classes = {'example_class': example_class}
 
     expected_pensees = pd.read_csv('example_pensees_scrape.csv')
 
@@ -64,20 +58,19 @@ def test_scrape_pensees():
 
 
 def test_report():
-    example_class = sF.load_student_file('./example_files/example_class.txt')
-
-    sF.courses = ['example_class']
-    sF.student_class_path = './example_files/COURSE.txt'
-    sF.courses = ['example_class']
-    sF.rg_class = None
-    sF.classes = {'example_class': example_class}
+    example_class = sF.load_student_file('../example_files/example_class.txt')
 
     studentCommentary.pensees = sF.scrape_pensees()
-    assert studentCommentary.student_notes_for_latex('EINSTEIN Albert', 'example_class') == (
+    created = studentCommentary.student_notes_for_latex('EINSTEIN Albert', 'example_class')
+    expected = (
         "\\begin{minipage}[t][\\textheight]{\\textwidth} \n{\\large \\textbf{EINSTEIN Albert}}\\hfill example_class\n\\"
         "vspace{1cm}\n\n\\begin{tabular}{ll}\n\\toprule\n      Date &                                    Info \\\\\n"
-        "\\midrule\n2018-08-27 &  -Albert s'ennui en classe \\\\\n2018-08-28 &  +Albert interagis bien avec les autres "
+        "\\midrule\n2018-08-27 &               -Albert s'ennui en classe \\\\\n2018-08-28 &  +Albert interagis bien avec les autres "
         "\\\\\n\\bottomrule\n\\end{tabular}\n\n\\vfill\n\\begin{minipage}[t]{0.5\\textwidth}\n\\includegraphics[width ="
         " 0.8\\textwidth]{EINSTEINAlbert_Sentiment.png}\\end{minipage}\n\\begin{minipage}[t]{0.5\\textwidth}\n\\include"
         "graphics[width = 0.8\\textwidth]{EINSTEINAlbert_Notes.png}\\end{minipage}\n\n\\end{minipage}\n\n\\newpage \n\n"
     )
+
+    print(created)
+    print(expected)
+    assert created == expected
